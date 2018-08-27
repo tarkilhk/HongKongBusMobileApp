@@ -13,14 +13,15 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 
   @override initState() {
-//    backendRootUrl.loadConfig("PROD");
-    backendRootUrl.loadConfig("DEV");
+    super.initState();
+    backendRootUrl.loadConfig("PROD");
+//    backendRootUrl.loadConfig("DEV");
   }
 
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Hong Kong Bus',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),

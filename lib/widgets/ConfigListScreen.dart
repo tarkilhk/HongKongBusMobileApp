@@ -19,7 +19,7 @@ class _ConfigListScreenState extends State<ConfigListScreen> {
   @override
   void initState () {
     super.initState();
-    this.configNames = ["LOADING"];
+    this.configNames = [];
 
     widget.connectedUser.getConfigNames().then((result) {
       setState(() {
@@ -35,7 +35,8 @@ class _ConfigListScreenState extends State<ConfigListScreen> {
       appBar: AppBar(
         title: Text("What do you want to see ?"),
       ),
-      body: ListView.builder(
+      body: this.configNames.isEmpty ? Center(child: new CircularProgressIndicator(),)
+            : ListView.builder(
         itemCount: configNames.length,
         itemBuilder: (context, index) {
           return ListTile(

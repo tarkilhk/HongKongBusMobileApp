@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-        title: Text('Hello ${connectedUser.userName} - $configName'),
+        title: configName==""?Text('Hello ${connectedUser.userName}'):Text('Hello ${connectedUser.userName} - $configName'),
     ),
     body: widgetPicker(),
     );
@@ -66,7 +66,5 @@ class _HomePageState extends State<HomePage> {
         return BusListScreen(this.connectedUser,this.configName);
       }
     }
-
-    return Container();
   }
 }
