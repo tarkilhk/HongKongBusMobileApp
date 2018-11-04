@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
+//import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hong_kong_bus/domain/NextBusesTimesResult.dart';
 import 'package:hong_kong_bus/domain/User.dart';
 import 'package:hong_kong_bus/domain/BusTimeToDisplay.dart';
-import 'package:hong_kong_bus/widgets/HomePage.dart';
+//import 'package:hong_kong_bus/widgets/HomePage.dart';
 import 'package:http/http.dart' as http;
 import 'package:hong_kong_bus/utils/BackendRootURL.dart' as backendRootUrl;
 
@@ -90,19 +90,19 @@ class _BusListScreenState extends State<BusListScreen> {
   Future<NextBusesTimesResult> GetBusesTimes([String configName = ""]) async {
     NextBusesTimesResult nbtresult;
 
-    String urlIncludingOptionalConfigName;
-    if (configName == "") {
-      urlIncludingOptionalConfigName =
-      '${backendRootUrl.serverRootURL}/nextBusesTimesFor?sessionId=${widget
-          .connectedUser.sessionId}';
-    }
-    else {
-      urlIncludingOptionalConfigName =
-      '${backendRootUrl.serverRootURL}/nextBusesTimesFor?sessionId=${widget
-          .connectedUser.sessionId}&configName=$configName';
+    if(configName != "") {
+//      urlIncludingOptionalConfigName =
+//      '${backendRootUrl.serverRootURL}/nextBusesTimesFor?sessionId=${widget
+//          .connectedUser.sessionId}&configName=$configName';
+      var response = await http.post('${backendRootUrl.serverRootURL}/sessions/changeConfigName',headers: {"Accept":"application/json"}, body: {"sessionId":widget.connectedUser.sessionId,"configName":configName} );
+      if(response.statusCode==401) {
+        return NextBusesTimesResult(
+            "error", [BusTimeToDisplay(-1, "errorGettingBuses", "-")]);
+      }
     }
 
-    var response = await http.get(urlIncludingOptionalConfigName);
+    var response = await http.get('${backendRootUrl.serverRootURL}/busTimes/nextFor?sessionId=${widget
+        .connectedUser.sessionId}');
 
     if(response.statusCode == 401) {
       // Too long inactivity, session must have got pruned, I need a new one

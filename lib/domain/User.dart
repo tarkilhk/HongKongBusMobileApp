@@ -15,7 +15,7 @@ class User {
 
   Future<String> loginAndReturnSessionId() async {
 //    var response = await http.get("http://192.168.1.115:8080/login?userName=pi");
-    var response = await http.get("${backendRootUrl.serverRootURL}/login?userName=${this.userName}");
+    var response = await http.post("${backendRootUrl.serverRootURL}/users/login", headers: {"Accept":"application/json"}, body: {"userName":this.userName} );
 
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON
@@ -33,7 +33,7 @@ class User {
 
   Future<List<String>> getConfigNames() async {
     List<String> myConfigNames = [];
-    var response = await http.get('${backendRootUrl.serverRootURL}/user/configNames?sessionId=$sessionId');
+    var response = await http.get('${backendRootUrl.serverRootURL}/session/configNames?sessionId=$sessionId');
 
     if (response.statusCode == 200) {
       myConfigNames.clear();
