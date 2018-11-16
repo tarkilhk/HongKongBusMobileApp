@@ -14,8 +14,8 @@ class _MyAppState extends State<MyApp> {
 
   @override initState() {
     super.initState();
-    backendRootUrl.loadConfig("PROD");
-//    backendRootUrl.loadConfig("DEV");
+    backendRootUrl.loadConfig("PROD","us");
+//    backendRootUrl.loadConfig("DEV","whatever");
   }
 
   @override

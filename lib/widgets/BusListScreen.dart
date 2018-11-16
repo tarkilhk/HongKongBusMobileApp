@@ -110,16 +110,12 @@ class _BusListScreenState extends State<BusListScreen> {
           "Session ${widget.connectedUser.sessionId} for ${widget.connectedUser
               .userName} was pruned, I need to renew it");
       widget.connectedUser = User("");
-      nbtresult = NextBusesTimesResult("user disconnected", [BusTimeToDisplay(0,"user disconnected","user disconnected")]);
+      nbtresult = NextBusesTimesResult("user disconnected", [BusTimeToDisplay(-1,"user disconnected","user disconnected")]);
     }
     else {
       if (response.statusCode == 200) {
-        if (response.body != "[]") {
+        if (NextBusesTimesResult.fromJSON(response.body).arrivalTimes.length != 0) {
           nbtresult = NextBusesTimesResult.fromJSON(response.body);
-//        var jsonBody = json.decode(response.body);
-//        lastRefreshTime = jsonBody["lastRefreshTime"];
-//        jsonBody["arrivalTimes"].forEach((busTimeJson) =>
-//            busesTimes.add(BusTimeToDisplay.fromJson(busTimeJson)));
         }
         else {
           nbtresult =
