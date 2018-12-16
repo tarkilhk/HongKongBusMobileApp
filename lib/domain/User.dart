@@ -33,7 +33,7 @@ class User {
 
   Future<List<String>> getConfigNames() async {
     List<String> myConfigNames = [];
-    var response = await http.get('${backendRootUrl.serverRootURL}/session/configNames?sessionId=$sessionId');
+    var response = await http.get('${backendRootUrl.serverRootURL}/sessions/configNames?sessionId=$sessionId');
 
     if (response.statusCode == 200) {
       myConfigNames.clear();
@@ -42,7 +42,7 @@ class User {
     else {
       // If that response was not OK, throw an error.
 //      throw Exception('Failed to login : ${json.decode(response.body)}');
-      myConfigNames = ["ConfigLoadError"];
+      myConfigNames = ["ConfigLoadError - error ${response.statusCode}"];
     }
     print("about to return userListFromBackend, size = ${myConfigNames.length}");
     return myConfigNames;

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 //import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hong_kong_bus/domain/NextBusesTimesResult.dart';
@@ -34,9 +35,6 @@ class _BusListScreenState extends State<BusListScreen> {
         this.myResult = result;
       });
     });
-//    this.loadUserList().then(widget.setSessionId("toto"));
-//    new Future.delayed(const Duration(seconds: 4));
-//    Timer(Duration(seconds: 5),() => MyNavigator.goToUsers(context, [User("pi"), User("pi2")]));
   }
 
   @override
@@ -72,11 +70,8 @@ class _BusListScreenState extends State<BusListScreen> {
                   itemCount: myResult.arrivalTimes.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text(
-                          "Bus ${myResult.arrivalTimes[index]
-                              .busNumber} - ${myResult.arrivalTimes[index]
-                              .arrivalTime} - ${myResult.arrivalTimes[index]
-                              .distance}"),
+                      title: Text(FormatLine(myResult.arrivalTimes[index])
+                          ),
                     );
                   },
                 ),
@@ -89,47 +84,67 @@ class _BusListScreenState extends State<BusListScreen> {
 
   Future<NextBusesTimesResult> GetBusesTimes([String configName = ""]) async {
     NextBusesTimesResult nbtresult;
+    int counterOfAttemptsToGETnextFor = 0;
+    bool INeedToTryToLoadBusTimes = true;
 
     if(configName != "") {
 //      urlIncludingOptionalConfigName =
 //      '${backendRootUrl.serverRootURL}/nextBusesTimesFor?sessionId=${widget
 //          .connectedUser.sessionId}&configName=$configName';
       var response = await http.post('${backendRootUrl.serverRootURL}/sessions/changeConfigName',headers: {"Accept":"application/json"}, body: {"sessionId":widget.connectedUser.sessionId,"configName":configName} );
-      if(response.statusCode==401) {
+      if(response.statusCode!=200) {
         return NextBusesTimesResult(
-            "error", [BusTimeToDisplay(-1, "errorGettingBuses", "-")]);
+            "error", [BusTimeToDisplay(-1, "Cannot changeConfigName", "-")]);
       }
     }
 
-    var response = await http.get('${backendRootUrl.serverRootURL}/busTimes/nextFor?sessionId=${widget
-        .connectedUser.sessionId}');
+    while(INeedToTryToLoadBusTimes) {
+      INeedToTryToLoadBusTimes = false;
+      var response = await http.get('${backendRootUrl.serverRootURL}/busTimes/nextFor?sessionId=${widget
+          .connectedUser.sessionId}');
 
-    if(response.statusCode == 401) {
-      // Too long inactivity, session must have got pruned, I need a new one
-      print(
-          "Session ${widget.connectedUser.sessionId} for ${widget.connectedUser
-              .userName} was pruned, I need to renew it");
-      widget.connectedUser = User("");
-      nbtresult = NextBusesTimesResult("user disconnected", [BusTimeToDisplay(-1,"user disconnected","user disconnected")]);
-    }
-    else {
-      if (response.statusCode == 200) {
-        if (NextBusesTimesResult.fromJSON(response.body).arrivalTimes.length != 0) {
-          nbtresult = NextBusesTimesResult.fromJSON(response.body);
-        }
-        else {
-          nbtresult =
-              NextBusesTimesResult(
-                  "error", [BusTimeToDisplay(-1, "No Bus", "")]);
-        }
+      if(response.statusCode == 401) {
+        // Too long inactivity, session must have got pruned, I need a new one
+        print(
+            "Session ${widget.connectedUser.sessionId} for ${widget.connectedUser
+                .userName} was pruned, I need to renew it");
+        widget.connectedUser = User("");
+        nbtresult = NextBusesTimesResult("user disconnected", [BusTimeToDisplay(-1,"user disconnected","user disconnected")]);
       }
       else {
-        // If that response was not OK, throw an error.
+        if (response.statusCode == 200) {
+          if(NextBusesTimesResult.fromJSON(response.body).isLoaded) {
+            if (NextBusesTimesResult
+                .fromJSON(response.body)
+                .arrivalTimes
+                .length != 0) {
+              nbtresult = NextBusesTimesResult.fromJSON(response.body);
+            }
+            else {
+              nbtresult =
+                  NextBusesTimesResult(
+                      "error", [BusTimeToDisplay(-1, "No Bus", "")]);
+            }
+          }
+          else {
+            counterOfAttemptsToGETnextFor += 1;
+            if(counterOfAttemptsToGETnextFor <= 3) {
+              print("Still not loaded going to wait for 5s : Loop #$counterOfAttemptsToGETnextFor");
+              //TODO : do not do a sleep on the main thread : should be sending a message back to upstream components, retry loading buses from there
+              sleep(const Duration(seconds:5));
+              INeedToTryToLoadBusTimes = true;
+            }
+          }
+        }
+        else {
+          // If that response was not OK, throw an error.
 //      throw Exception('Failed to login : ${json.decode(response.body)}');
-        nbtresult = NextBusesTimesResult(
-            "error", [BusTimeToDisplay(-1, "errorGettingBuses", "-")]);
+          nbtresult = NextBusesTimesResult(
+              "error", [BusTimeToDisplay(-1, "errorGettingBuses", "-")]);
+        }
       }
     }
+
     print("About to return NextBusTimes, size = ${nbtresult.arrivalTimes
         .length}");
     return nbtresult;
@@ -141,5 +156,15 @@ class _BusListScreenState extends State<BusListScreen> {
         this.myResult = result;
       });
     });
+  }
+}
+
+String FormatLine(BusTimeToDisplay arrivalTime) {
+  if (arrivalTime.busNumber != -1) {
+    return "Bus ${arrivalTime.busNumber} - ${arrivalTime
+        .arrivalTime} - ${arrivalTime.distance}";
+  }
+  else {
+    return arrivalTime.arrivalTime;
   }
 }
