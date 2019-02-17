@@ -1,4 +1,4 @@
-library backendRootUrl;
+library backend__root_url;
 
 String serverRootURL = '';
 

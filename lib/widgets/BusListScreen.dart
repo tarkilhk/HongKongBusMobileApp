@@ -160,7 +160,7 @@ class _BusListScreenState extends State<BusListScreen> {
 }
 
 String FormatLine(BusTimeToDisplay arrivalTime) {
-  if (arrivalTime.busNumber != -1) {
+  if (arrivalTime.busNumber != "-1") {
     return "Bus ${arrivalTime.busNumber} - ${arrivalTime
         .arrivalTime} - ${arrivalTime.distance}";
   }
