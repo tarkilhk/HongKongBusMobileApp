@@ -1,5 +1,5 @@
 class BusTimeToDisplay {
-  int busNumber = 0;
+  String busNumber = '0';
   String arrivalTime = '';
   String distance = '';
   String arrivalTime24H = '';

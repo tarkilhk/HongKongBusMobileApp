@@ -28,7 +28,7 @@ class _BusListScreenState extends State<BusListScreen> {
     print("initState of BusListScreen");
     super.initState();
     this.myResult =
-        NextBusesTimesResult("Loading", [BusTimeToDisplay(0, "", "")]);
+        NextBusesTimesResult("Loading", [BusTimeToDisplay("0", "", "")]);
     print("ready to load NextBusTimes");
     GetBusesTimes(widget.configName).then((result) {
       setState(() {
@@ -94,7 +94,7 @@ class _BusListScreenState extends State<BusListScreen> {
       var response = await http.post('${backendRootUrl.serverRootURL}/sessions/changeConfigName',headers: {"Accept":"application/json"}, body: {"sessionId":widget.connectedUser.sessionId,"configName":configName} );
       if(response.statusCode!=200) {
         return NextBusesTimesResult(
-            "error", [BusTimeToDisplay(-1, "Cannot changeConfigName", "-")]);
+            "error", [BusTimeToDisplay("-1", "Cannot changeConfigName", "-")]);
       }
     }
 
@@ -109,7 +109,7 @@ class _BusListScreenState extends State<BusListScreen> {
             "Session ${widget.connectedUser.sessionId} for ${widget.connectedUser
                 .userName} was pruned, I need to renew it");
         widget.connectedUser = User("");
-        nbtresult = NextBusesTimesResult("user disconnected", [BusTimeToDisplay(-1,"user disconnected","user disconnected")]);
+        nbtresult = NextBusesTimesResult("user disconnected", [BusTimeToDisplay("-1","user disconnected","user disconnected")]);
       }
       else {
         if (response.statusCode == 200) {
@@ -123,7 +123,7 @@ class _BusListScreenState extends State<BusListScreen> {
             else {
               nbtresult =
                   NextBusesTimesResult(
-                      "error", [BusTimeToDisplay(-1, "No Bus", "")]);
+                      "error", [BusTimeToDisplay("-1", "No Bus", "")]);
             }
           }
           else {
@@ -140,7 +140,7 @@ class _BusListScreenState extends State<BusListScreen> {
           // If that response was not OK, throw an error.
 //      throw Exception('Failed to login : ${json.decode(response.body)}');
           nbtresult = NextBusesTimesResult(
-              "error", [BusTimeToDisplay(-1, "errorGettingBuses", "-")]);
+              "error", [BusTimeToDisplay("-1", "errorGettingBuses", "-")]);
         }
       }
     }

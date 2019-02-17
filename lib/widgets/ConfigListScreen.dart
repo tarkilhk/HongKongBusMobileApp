@@ -50,6 +50,7 @@ class _ConfigListScreenState extends State<ConfigListScreen> {
                 print("I want ${configNames[index]}");
               });
             },
+            contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 32.0),
           );
         },
       ),
